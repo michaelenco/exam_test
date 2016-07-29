@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html ng-app="app">
+<head>
+    <meta charset="UTF-8" />
+    <title>test</title>
+
+    <script src="{{ asset('assets/vendor/angular/angular.min.js') }}"></script>
+    <script src="{{ asset('assets/vendor/angular-resource/angular-resource.min.js') }}"></script>
+    <script src="{{ asset('assets/vendor/angular-route/angular-route.min.js') }}"></script>
+    <script src="{{ asset('assets/js/app.js') }}"></script>
+
+    <style>
+        #wrapper { margin: 1em auto; max-width: 800px; width: 95%; }
+        #container { padding: 2em; }
+    </style>
+    <link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap/dist/css/bootstrap.min.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+
+    <script>
+        var app = angular.module('app', ['ngRoute'])
+
+        app.config(function($routeProvider) {
+            $routeProvider.when('/', {
+                controller: 'indexController',
+                templateUrl: '{{ asset('assets/views/start.html') }}'
+            })
+            $routeProvider.when('/exam/:userId', {
+                controller: 'examController',
+                templateUrl: '{{ asset('assets/views/exam.html') }}',
+                resolve: {
+                    exam_resp: function($http, $route) {
+                        return $http.post('/api/exam', {
+                            userId: $route.current.params.userId
+                        })
+                    }
+                }
+            })
+        })
+
+        app.controller('indexController', function($scope, $http, $location) {
+            $scope.start = function() {
+                $http.post('/api/start', {
+                    name: $scope.name
+                }).then(function(response) {
+                    $location.path('/exam/'+response.data.userId)
+                })
+            }
+        })
+        app.controller('examController', function($scope, $http, $route, $location, exam_resp) {
+            $scope.exam = exam_resp.data
+            $scope.err = []
+            $scope.send_answer = function(index) {
+                $http.post('/api/answer', {
+                    userId: $scope.exam.userId,
+                    q: $scope.exam.question.q,
+                    a: $scope.exam.question.a[index]
+                }).then(function(resp) {
+                    switch(resp.data) {
+                        case 'failed':
+                        case 'success':
+                            $route.reload()
+                            break
+                        case 'error':
+                            $scope.exam.errors++
+                            $scope.err.push(index)
+                            $scope.quest.$submitted = false
+                            break
+                    }
+                })}
+            $scope.start_again = function() {
+                $location.path('/')
+            }
+        })
+    </script>
+</head>
+<body>
+<div id="wrapper">
+    <div ng-view id="container">
+    </div>
+</div>
+</body>
+</html>

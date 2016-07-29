@@ -1,0 +1,37 @@
+<style>
+    .answer {
+        padding: 10px;
+    }
+    .answer button {
+        width: 100px;
+    }
+    .answer:nth-child(even) {
+        float: left;
+    }
+</style>
+
+<div ng-show="exam.status == 'in_progress'">
+    <form name="quest">
+        <h3>So, we got question. <br> What is {{exam.question.q}}?</h3>
+        <div class="answer" ng-repeat="answer in exam.question.a">
+            <button class="btn-default btn"
+                    ng-disabled="quest.$submitted || err.indexOf($index)>-1"
+                    ng-class="{'btn-danger': err.indexOf($index)>-1}"
+                    ng-click="send_answer($index)">{{answer}}
+            </button>
+        </div>
+    </form>
+    Score: {{exam.score}}<br>Errors: {{exam.errors}}
+</div>
+<div ng-show="exam.status != 'in_progress'">
+    <div ng-show="exam.status == 'failed'">
+        <h1 class="text-danger" >Failed!</h1>
+        <h3>I think you can live without green card.</h3>
+    </div>
+    <div ng-show="exam.status == 'success'">
+        <h1 class="text-success">Success!</h1>
+        <h3>Your green card has been sent to you by email.</h3>
+    </div>
+    <h3>Your score is {{exam.score}} and {{exam.errors}} errors.</h3>
+    <button class="btn btn-default" ng-click="start_again()">Start again</button>
+</div>

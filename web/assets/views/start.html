@@ -1,0 +1,21 @@
+<form name="name_form">
+    <div class="form-group"
+         ng-class="{'has-error' : name_form.name.$invalid && name_form.name.$touched}">
+        <label>Enter your name</label>
+        <input class="form-control"
+               ng-model="name"
+               name="name"
+               required
+               maxlength="100"/>
+        <span class="help-block"
+              ng-show="name_form.name.$error.required && name_form.name.$touched">
+            required
+        </span>
+    </div>
+    <button type="submit"
+            ng-disabled="name_form.$invalid || name_form.$submitted"
+            class="btn btn-default"
+            ng-click="start()">
+        Start
+    </button>
+</form>
